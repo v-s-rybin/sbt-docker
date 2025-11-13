@@ -122,7 +122,7 @@ class DockerBuildSpec extends AnyFreeSpec with Matchers {
         "Successfully built 353fcb84af6b",
         "Successfully tagged test:latest"
       )
-      DockerBuild.parseImageId(lines) shouldEqual Some(ImageId("353fcb84af6b"))
+      DockerBuild.parseImageId(lines, false) shouldEqual Some(ImageId("353fcb84af6b"))
     }
 
     "Docker build with containerd output" in {
@@ -134,7 +134,7 @@ class DockerBuildSpec extends AnyFreeSpec with Matchers {
         "[info] #10 exporting attestation manifest sha256:ba07dabd29c79fa4f8f55b2d691cc740638e4b4d6abe6eb07aa8774f0b203cc1 0.1s done",
         "[info] #10 exporting manifest list sha256:bb462cb506fd951efc8847f7f4c9a227b5908246101c1d9e5685daf632ce9c51 0.0s done"
       )
-      DockerBuild.parseImageId(lines) shouldEqual Some(ImageId("bb462cb506fd951efc8847f7f4c9a227b5908246101c1d9e5685daf632ce9c51"))
+      DockerBuild.parseImageId(lines, false) shouldEqual Some(ImageId("bb462cb506fd951efc8847f7f4c9a227b5908246101c1d9e5685daf632ce9c51"))
     }
 
     "Docker buildx output" in {
@@ -145,7 +145,7 @@ class DockerBuildSpec extends AnyFreeSpec with Matchers {
         "#7 exporting config sha256:d1d7dbb3987417e91239032f2a36a2ede76e62276849ebf362004c14d6fc82ac 0.0s done",
         "#7 sending tarball"
       )
-      DockerBuild.parseImageId(lines) shouldEqual Some(ImageId("d1d7dbb3987417e91239032f2a36a2ede76e62276849ebf362004c14d6fc82ac"))
+      DockerBuild.parseImageId(lines, true) shouldEqual Some(ImageId("d1d7dbb3987417e91239032f2a36a2ede76e62276849ebf362004c14d6fc82ac"))
 
     }
 
@@ -157,7 +157,7 @@ class DockerBuildSpec extends AnyFreeSpec with Matchers {
         "#6 writing image sha256:688f3de768e18bed863a7357e48b3d11a546ec2064cbcce2ffbe63343525a3a0 done",
         "#6 DONE 0.0s"
       )
-      DockerBuild.parseImageId(lines) shouldEqual Some(ImageId("688f3de768e18bed863a7357e48b3d11a546ec2064cbcce2ffbe63343525a3a0"))
+      DockerBuild.parseImageId(lines, false) shouldEqual Some(ImageId("688f3de768e18bed863a7357e48b3d11a546ec2064cbcce2ffbe63343525a3a0"))
     }
 
     "Podman build output" in {
@@ -169,7 +169,7 @@ class DockerBuildSpec extends AnyFreeSpec with Matchers {
         "dada5485d85618e75ad1a9772c6c00523f442c8d30487fb7c9f9f9ea544db1db",
         ""
       )
-      DockerBuild.parseImageId(lines) shouldEqual Some(ImageId("dada5485d85618e75ad1a9772c6c00523f442c8d30487fb7c9f9f9ea544db1db"))
+      DockerBuild.parseImageId(lines, false) shouldEqual Some(ImageId("dada5485d85618e75ad1a9772c6c00523f442c8d30487fb7c9f9f9ea544db1db"))
     }
   }
 }
