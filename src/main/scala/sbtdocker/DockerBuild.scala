@@ -111,10 +111,10 @@ object DockerBuild {
   ): ImageId = {
     val dockerfileAbsolutePath = dockerfilePath.getAbsoluteFile
     var lines = Seq.empty[String]
-
+    val isBuildX = buildOptions.platforms.nonEmpty
     def runBuild(buildKitSupport: Boolean): Int = {
-      val buildX = if (buildOptions.platforms.isEmpty) Nil else List("buildx")
-      val load = if (buildOptions.platforms.isEmpty) Nil else List("--load")
+      val buildX = if (!isBuildX) Nil else List("buildx")
+      val load = if (!isBuildX) Nil else List("--load")
       val buildOptionFlags = generateBuildOptionFlags(buildOptions)
       val buildKitFlags = if (buildKitSupport) List("--progress=plain") else Nil
       val buildArgumentFlags = buildArguments.toList.flatMap {
@@ -132,7 +132,7 @@ object DockerBuild {
         dockerfileAbsolutePath.getPath ::
         dockerfileAbsolutePath.getParentFile.getPath ::
         Nil
-      log.debug(s"Running command: '${command.mkString(" ")}'")
+      log.info(s"Running command: '${command.mkString(" ")}'")
 
       Process(command, dockerfileAbsolutePath.getParentFile).!(
         ProcessLogger(
@@ -159,7 +159,7 @@ object DockerBuild {
     }
 
     if (exitCode == 0) {
-      val imageId = parseImageId(lines)
+      val imageId = parseImageId(lines, isBuildX)
 
       imageId match {
         case Some(id) =>
@@ -204,13 +204,13 @@ object DockerBuild {
   private val SuccessfullyBuiltPodman = "^([0-9a-f]{64})$".r
   private val SuccessfullyBuiltNerdctl = "^Loaded image: .*sha256:([0-9a-f]+)$".r
 
-  private[sbtdocker] def parseImageId(lines: Seq[String]): Option[ImageId] = {
+  private[sbtdocker] def parseImageId(lines: Seq[String], isBuildX: Boolean): Option[ImageId] = {
     lines.collect {
       case SuccessfullyBuilt(id) => ImageId(id)
       case SuccessfullyBuiltBuildKit(id) => ImageId(id)
       case SuccessfullyBuiltBuildxDangling(id) => ImageId(id)
       case SuccessfullyBuiltContainerd(id) => ImageId(id)
-      case SuccessfullyBuiltBuildx(id) => ImageId(id)
+      case SuccessfullyBuiltBuildx(id) if isBuildX => ImageId(id)
       case SuccessfullyBuiltPodman(id) => ImageId(id)
       case SuccessfullyBuiltNerdctl(id) => ImageId(id)
     }.lastOption
